@@ -168,7 +168,8 @@ def generate_examples(n: int, split: str = "train", master_seed: int = 0,
                       mode: str = "control_consistent",
                       kind_mix: dict[str, float] | None = None,
                       conditions: list[str] | None = None,
-                      max_episodes: int = 20_000,
+                      max_episodes: int = 50_000,
+                      max_per_episode: int = 6,
                       log_every: int = 50) -> list[dict]:
     """Roll episodes until `n` examples are collected at the requested kind
     mix. Deterministic in (n, split, master_seed, kind_mix, conditions)."""
@@ -187,9 +188,16 @@ def generate_examples(n: int, split: str = "train", master_seed: int = 0,
                                f"{ {k: len(x) for k, x in got.items()} }")
         v = V.sample_variant(split, ep, ids, B.N_CONTACT_TEMPLATES, master_seed)
         rows = asyncio.run(_roll_episode(v))
+        # cap per episode: briefing, roster and prices are fixed within an
+        # episode, so a few long episodes would otherwise dominate a small set
+        random.Random(f"pick-{v.seed}").shuffle(rows)
+        taken = 0
         for r in rows:
             k = r["info"]["kind"]
+            if taken >= max_per_episode:
+                break
             if len(got[k]) < quota[k]:
+                taken += 1
                 r["answer"] = preferred_choice(r["info"], mode)
                 got[k].append(r)
         ep += 1
