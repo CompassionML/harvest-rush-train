@@ -4,7 +4,7 @@ depend on the model's own earlier choices, and reports the same per-kind
 continue rates the benchmark reports, plus mean reward.
 
     export OPENAI_BASE_URL=https://openrouter.ai/api/v1 OPENAI_API_KEY=...
-    HARVESTBENCH_PATH=../harvestbench python scripts/baseline_eval.py \
+    python scripts/baseline_eval.py \
         --model meta-llama/llama-3.1-8b-instruct --episodes 30
 """
 

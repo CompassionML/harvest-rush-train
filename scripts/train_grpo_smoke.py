@@ -11,9 +11,7 @@ What to watch in the logs:
 
 RunPod, one 48GB+ GPU (A6000 / L40S / A100):
     pip install "trl>=0.19" peft accelerate datasets
-    pip install -e .            # this repo
-    git clone https://github.com/CompassionML/harvestbench ../harvestbench
-    export HARVESTBENCH_PATH=../harvestbench
+    pip install -e .            # this repo; pulls the harvest engine from GitHub
     python scripts/train_grpo_smoke.py --model Qwen/Qwen2.5-1.5B-Instruct --max-steps 200
     # then the CaML standard test model (gated, needs HF_TOKEN):
     python scripts/train_grpo_smoke.py --model meta-llama/Llama-3.1-8B-Instruct --max-steps 300

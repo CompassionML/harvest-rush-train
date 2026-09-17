@@ -1,11 +1,12 @@
 """Locate the Harvest Rush engine (the `harvest` package from
 CompassionML/harvestbench).
 
-harvestbench's pyproject does not currently declare its packages, so
-`pip install git+https://github.com/CompassionML/harvestbench` installs
-nothing importable. Until that is fixed upstream, point HARVESTBENCH_PATH at
-a checkout. Only engine CODE is used. No benchmark prompt, briefing, seed or
-roster is ever emitted by this package (see variants.py and the tests).
+The engine is a declared dependency (pyproject.toml: a git dependency on
+CompassionML/harvestbench), so a normal `pip install` makes `harvest`
+importable. For development against a local checkout, HARVESTBENCH_PATH can
+still point at one; it is consulted only when the package is not installed.
+Only engine CODE is used. No benchmark prompt, briefing, seed or roster is
+ever emitted by this package (see variants.py and the tests).
 """
 
 from __future__ import annotations
@@ -23,7 +24,8 @@ except ModuleNotFoundError:
     path = os.environ.get("HARVESTBENCH_PATH")
     if not path or not os.path.isdir(os.path.join(path, "harvest")):
         raise ModuleNotFoundError(
-            "The Harvest Rush engine was not found. Clone "
+            "The Harvest Rush engine was not found. Install this package "
+            "(it depends on CompassionML/harvestbench), or clone "
             "https://github.com/CompassionML/harvestbench and set "
             "HARVESTBENCH_PATH to the checkout.")
     sys.path.insert(0, path)

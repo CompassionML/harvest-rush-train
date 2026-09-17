@@ -1,7 +1,7 @@
 """Export the static single-turn dataset (JSONL), for SFT, DPO or
 single-turn RLVR without installing verifiers.
 
-    HARVESTBENCH_PATH=../harvestbench python scripts/export_dataset.py \
+    python scripts/export_dataset.py \
         --n-train 5000 --n-eval 500 --out data/
 """
 

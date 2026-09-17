@@ -7,9 +7,14 @@ name = "harvest-rush-train"
 version = "0.0.1"
 description = "Verifiable-reward training environment for LLM agents: spare the animal, flatten the leaf pile, avoid the rock. Training counterpart to HarvestBench, with a disjoint surface."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { text = "MIT" }
-dependencies = ["verifiers>=0.3", "datasets>=2.19"]
+dependencies = [
+    "verifiers>=0.3",
+    "datasets>=2.19",
+    # The Harvest Rush engine (package `harvest`). Engine code only; see README.
+    "harvestbench @ git+https://github.com/CompassionML/harvestbench@main",
+]
 
 [project.optional-dependencies]
 eval = ["openai>=1.40"]

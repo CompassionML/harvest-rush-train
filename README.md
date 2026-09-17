@@ -46,11 +46,13 @@ and measure whether they survive. It is a research control, not a target.
 ## Use
 
 ```bash
-git clone https://github.com/CompassionML/harvestbench ../harvestbench
-export HARVESTBENCH_PATH=../harvestbench      # engine code only
-pip install -e ".[dev,eval]"
+pip install -e ".[dev,eval]"   # pulls the harvest engine (code only) from CompassionML/harvestbench
 pytest -q
 ```
+
+To develop against a local engine checkout instead, clone
+CompassionML/harvestbench and set `HARVESTBENCH_PATH` to it. The variable is
+read only when the `harvest` package is not installed.
 
 ```python
 from harvest_rush_train import load_environment
