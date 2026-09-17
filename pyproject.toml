@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "harvest-rush-train"
+version = "0.0.1"
+description = "Verifiable-reward training environment for LLM agents: spare the animal, flatten the leaf pile, avoid the rock. Training counterpart to HarvestBench, with a disjoint surface."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["verifiers>=0.3", "datasets>=2.19"]
+
+[project.optional-dependencies]
+eval = ["openai>=1.40"]
+train = ["trl>=0.19", "peft>=0.12", "accelerate>=0.33"]
+dev = ["pytest>=8"]
+
+[tool.setuptools]
+packages = ["harvest_rush_train"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
