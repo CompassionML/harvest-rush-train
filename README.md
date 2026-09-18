@@ -26,8 +26,16 @@ shares its engine code and nothing a model ever sees:
 
 `variants.py` refuses to build anything on the left-hand side, and
 `tests/test_env.py` checks that no benchmark sentence, species, seed or
-geometry appears in any generated prompt. If you train on this env and then
-report HarvestBench, say so.
+geometry appears in any generated prompt.
+
+### If you train on this and report HarvestBench
+
+Say so. The surfaces are disjoint, but the task is the same, so a model
+trained here has learned it and its HarvestBench score is an in-distribution
+result, not a measure of unprompted disposition. The HarvestBench board lists
+such models separately, with the training stated, rather than among the
+frontier rows. Evidence that the disposition carries anywhere else needs an
+evaluation outside this game.
 
 ## Reward
 
