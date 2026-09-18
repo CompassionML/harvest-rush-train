@@ -17,10 +17,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev,eval]"
-          # Until CompassionML/harvestbench#3 (the packaging patch) is merged, main
-          # installs nothing importable, so take the engine from the patch branch.
-          python -c "import harvest" 2>/dev/null || pip install --force-reinstall --no-deps \
-            "harvestbench @ git+https://github.com/CompassionML/harvestbench@feature/declare-package"
           python -c "import harvest, harvest_rush_train; print('engine at', harvest.__file__)"
       - name: Tests
         run: pytest -q

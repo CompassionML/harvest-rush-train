@@ -20,7 +20,8 @@ a GPU (see `baselines/smoke_tests.md`).
 ### Datasets
 - **Primary dataset**: generated on the fly by `load_environment` from the
   Harvest Rush engine (deterministic in the seed). A static export is on
-  Hugging Face as `CompassioninMachineLearning/harvest-rush-train`.
+  Hugging Face as `CompassioninMachineLearning/harvest-rush-train` (gated:
+  click to accept the terms, access is granted automatically).
 - **Split sizes**: 2,000 train and 300 eval by default; the export has 5,000
   and 500. Train seeds start at 100000, eval seeds at 200000.
 

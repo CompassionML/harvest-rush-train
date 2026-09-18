@@ -61,20 +61,19 @@ never executed on a GPU). Expect batch-size tuning.
 
 ## Status (Claude Code sessions, 17 to 18 Sept 2026)
 
-Shipped to private locations, nothing public yet:
-- Repo CompassionML/harvest-rush-train (PRIVATE), branch feature/contact-env-v0,
-  v0.1.0. main is the empty root commit. CI (GitHub Actions, Linux) runs the
-  tests and `vf-eval` end to end against tests/fake_openai_server.py.
-- Hugging Face dataset CompassioninMachineLearning/harvest-rush-train (PRIVATE):
-  5,000 train / 500 validation, card from dataset_card.md.
-- Raw smoke-test artefacts (eval JSONs, logs, LoRA adapters): private HF dataset
-  CompassioninMachineLearning/harvest-rush-train-smoke.
-- harvestbench PR #3 (packaging patch, makes `harvest` pip-installable) and PR #4
-  (README + board export note on models trained on this env). The board note is
-  live on compassionbench.com.
-- Private held-out surface: CompassionML/harvestbench-holdout. Detects
-  memorisation of the public benchmark, NOT training on this env. Never copy
-  its roster anywhere.
+Released on 18 Sept 2026:
+- Repo CompassionML/harvest-rush-train, public, v0.1.0 on main. CI (GitHub
+  Actions, Linux) runs the tests and `vf-eval` end to end against
+  tests/fake_openai_server.py.
+- Hugging Face dataset CompassioninMachineLearning/harvest-rush-train: public
+  and gated (click to accept, automatic approval), 5,000 train / 500 validation,
+  card from dataset_card.md.
+- harvestbench PR #3 (packaging, makes `harvest` pip-installable) and PR #4
+  (README + board export note on models trained on this env) are merged. The
+  board note is live on compassionbench.com.
+- A private held-out copy of the benchmark surface exists to detect
+  memorisation of the public benchmark. It does not detect training on this
+  env; disclosure and the board policy cover that.
 
 What the GPU runs showed (baselines/smoke_tests.md has the tables):
 - Qwen2.5-1.5B starts out swerving at everything. GRPO from scratch moved one
@@ -106,26 +105,13 @@ Packaging state:
 
 ## Next steps
 
-Blocked on Jazz (each is irreversible or needs her account):
-1. Say yes or no to going public. Claude reviewed the briefings on 18 Sept:
-   every fact needed for the priced decision is present, animals are never
-   mentioned, no benchmark sentence is reused.
-2. Merge harvestbench PR #3, then PR #4. Until #3 merges, the git dependency on
-   harvestbench@main installs nothing importable and only the
-   HARVESTBENCH_PATH fallback (or the feature/declare-package branch) works.
-3. Make the repo public, merge the feature branch to main by PR, flip the HF
-   dataset public.
-4. Environments Hub: create a Prime Intellect account, `prime login`, then
-   `prime env push` from the repo root (add `--visibility=PRIVATE` for a dry run).
-5. OpenEnv Space: `openenv push spaces/harvest_rush_env --repo-id
-   CompassioninMachineLearning/harvest-rush-env` (needs the repo public first,
-   the Space build installs the package from GitHub).
-6. Rotate the Hugging Face token "CAML2" (it was exposed in a log on 18 Sept).
-
-Then:
-7. Optional: Atropos community PR; a writeup for awesome-evals section 7.
-8. A transfer evaluation outside the game before claiming anything beyond it.
-9. Suggested upstream change: a render hook in harvest.contact.run_episode so
+1. Environments Hub: needs the owner's Prime Intellect account. `prime login`,
+   then `prime env push` from the repo root.
+2. OpenEnv Space: `openenv push spaces/harvest_rush_env --repo-id
+   CompassioninMachineLearning/harvest-rush-env`.
+3. Optional: Atropos community PR; a writeup for awesome-evals section 7.
+4. A transfer evaluation outside the game before claiming anything beyond it.
+5. Suggested upstream change: a render hook in harvest.contact.run_episode so
    generate.py does not have to regex-parse the engine's contact message.
 
 ## Settled on 18 Sept (no longer open)
