@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "harvest-rush-train"
-version = "0.0.1"
+version = "0.1.0"
 description = "Verifiable-reward training environment for LLM agents: spare the animal, flatten the leaf pile, avoid the rock. Training counterpart to HarvestBench, with a disjoint surface."
+tags = ["single-turn", "train", "eval", "rlvr", "ethics", "animal-welfare", "agents"]
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -21,8 +22,17 @@ eval = ["openai>=1.40"]
 train = ["trl>=0.19", "peft>=0.12", "accelerate>=0.33"]
 dev = ["pytest>=8"]
 
-[tool.setuptools]
+[tool.hatch.metadata]
+# required by hatchling for the git dependency above
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
 packages = ["harvest_rush_train"]
+
+# defaults for `prime eval run harvest-rush-train` / `vf-eval`
+[tool.verifiers.eval]
+num_examples = 20
+rollouts_per_example = 1
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -173,3 +173,19 @@ def test_verifiers_environment_loads_and_scores():
     assert fn(completion=good, info=row["info"]) >= 0.9
     assert fn(completion=[{"role": "assistant", "content": "no"}], info=row["info"]) == 0.0
     assert row["answer"] in info["options"]
+
+
+def test_environment_loads_inside_a_running_event_loop():
+    """vf-eval and `prime eval run` call load_environment from inside a
+    running loop; generation must not use a bare asyncio.run there."""
+    import asyncio
+
+    from harvest_rush_train.generate import generate_examples
+
+    async def inside():
+        return generate_examples(12, "eval", 0, "control_consistent")
+
+    rows = asyncio.run(inside())
+    assert len(rows) == 12
+    assert rows == generate_examples(12, "eval", 0, "control_consistent")
+

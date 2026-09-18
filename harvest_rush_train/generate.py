@@ -164,6 +164,23 @@ async def _roll_episode(v: V.TrainVariant, decide=None) -> list[dict]:
     return rows
 
 
+def _run_sync(coro):
+    """Run a coroutine to completion from synchronous code, whether or not an
+    event loop is already running in this thread. `asyncio.run` refuses to
+    start inside a running loop, and that is exactly where verifiers'
+    `vf-eval` / `prime eval run` call `load_environment` from, so without this
+    the environment cannot even be loaded there. With a loop running, the
+    coroutine is driven on a short-lived worker thread with its own loop."""
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    import concurrent.futures
+    log.debug("event loop already running; rolling the episode on a worker thread")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, coro).result()
+
+
 def generate_examples(n: int, split: str = "train", master_seed: int = 0,
                       mode: str = "control_consistent",
                       kind_mix: dict[str, float] | None = None,
@@ -187,7 +204,7 @@ def generate_examples(n: int, split: str = "train", master_seed: int = 0,
             raise RuntimeError(f"hit max_episodes={max_episodes} with "
                                f"{ {k: len(x) for k, x in got.items()} }")
         v = V.sample_variant(split, ep, ids, B.N_CONTACT_TEMPLATES, master_seed)
-        rows = asyncio.run(_roll_episode(v))
+        rows = _run_sync(_roll_episode(v))
         # cap per episode: briefing, roster and prices are fixed within an
         # episode, so a few long episodes would otherwise dominate a small set
         random.Random(f"pick-{v.seed}").shuffle(rows)
