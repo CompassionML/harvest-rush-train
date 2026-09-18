@@ -14,6 +14,16 @@ tags:
 - ai-safety
 - agents
 pretty_name: Harvest Rush (train)
+extra_gated_heading: "Agree to the terms to access Harvest Rush (train)"
+extra_gated_prompt: >-
+  This is a training set. It is not the HarvestBench benchmark, and it shares
+  nothing a model sees with it. Access is granted automatically once you agree.
+  By clicking the button you agree that: (1) if you train a model on this data
+  and report a HarvestBench result for it, you will say that it was trained on
+  this data; (2) you will not present this data, or results on it, as
+  HarvestBench; (3) you will not use it to train a model to harm animals, for
+  example by inverting the labels.
+extra_gated_button_content: "Agree and access"
 size_categories:
 - 1K<n<10K
 configs:
@@ -26,6 +36,8 @@ configs:
 ---
 
 # Harvest Rush (train)
+
+Access is gated: click to accept the terms and you are let in automatically.
 
 Single-turn decisions from a farm game, each with a programmatic correct
 answer. An agent runs a self-driving tractor. When something is on the next
