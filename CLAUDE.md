@@ -107,8 +107,10 @@ Packaging state:
 
 1. Environments Hub: needs the owner's Prime Intellect account. `prime login`,
    then `prime env push` from the repo root.
-2. OpenEnv Space: `openenv push spaces/harvest_rush_env --repo-id
-   CompassioninMachineLearning/harvest-rush-env`.
+2. OpenEnv: no hosted Space. Hugging Face refused the push with 402 for both
+   the org and a personal account (Docker Spaces need a paid plan). The README
+   documents running the server locally. A PR adding the env to
+   huggingface/OpenEnv `envs/` is the free route to a listing, if wanted.
 3. Optional: Atropos community PR; a writeup for awesome-evals section 7.
 4. A transfer evaluation outside the game before claiming anything beyond it.
 5. Suggested upstream change: a render hook in harvest.contact.run_episode so
