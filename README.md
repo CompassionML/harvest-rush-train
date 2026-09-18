@@ -154,6 +154,24 @@ python scripts/eval_adapter.py --model Qwen/Qwen2.5-1.5B-Instruct --adapter runs
 driven over more often than before training, and exits 3 with `ALWAYS_SWERVE`
 if harmless props are avoided. A run that fails either should not be used.
 
+## OpenEnv
+
+`spaces/harvest_rush_env` wraps the same examples and the same reward as an
+[OpenEnv](https://github.com/huggingface/OpenEnv) environment, one contact
+decision per episode, for trainers that speak that protocol (TRL, verl, SkyRL).
+There is no hosted Space, because Hugging Face only hosts Docker Spaces on a
+paid plan. Run the server yourself:
+
+```bash
+pip install "openenv>=0.2.2" fastapi uvicorn
+pip install "harvest-rush-train @ git+https://github.com/CompassionML/harvest-rush-train"
+cd spaces/harvest_rush_env && uvicorn server.app:app --port 8000
+```
+
+Then connect with `HarvestRushEnv(base_url="http://localhost:8000")`; see
+`spaces/harvest_rush_env/README.md`. `server/Dockerfile` builds the same thing
+as a container.
+
 ## Scope and known limits
 
 - Single-turn. Under the contact protocol every model call is already a fresh
