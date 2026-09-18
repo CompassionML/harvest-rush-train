@@ -58,6 +58,28 @@ detour and score neutral (0.5).
 NOT yet run: scripts/train_grpo_smoke.py (written against TRL GRPOTrainer,
 never executed on a GPU). Expect batch-size tuning.
 
+## Status update (Claude Code session, 17 Sept 2026)
+
+Done:
+- Repo CompassionML/harvest-rush-train created (PRIVATE until release), this
+  branch pushed. main is the empty root commit.
+- harvestbench PR #3: the packaging patch (`harvest` pip-installable). PR #4:
+  README "Training on Harvest Rush" policy + the same note in
+  scripts/export_board_json.py. The note is live on compassionbench.com.
+- pyproject now depends on `harvestbench @ git+...@main`; the HARVESTBENCH_PATH
+  fallback stays until PR #3 merges. requires-python is 3.11 (verifiers).
+- baselines/README.md: Llama 3.1 8B, Qwen3 8B, Gemini 3.8 Flash, Sonnet 5.
+- scripts/eval_adapter.py: per-kind before/after eval (the GRPO monitors read
+  NaN across logging windows; use this instead).
+- Private held-out surface: CompassionML/harvestbench-holdout (board protocol on
+  an unpublished roster and seeds; detects memorisation of the public benchmark,
+  NOT training on this env). Never copy its roster anywhere.
+- RunPod smoke test running (A100 80GB): Qwen2.5-1.5B 200 steps at ~4.6 s/step,
+  then Llama 3.1 8B 300 steps, each followed by eval_adapter base vs adapter.
+  Working stack: torch 2.11+cu128, trl 0.19.1, transformers 4.53.3, peft
+  0.16.0, torchvision uninstalled. Results go under runs/ (gitignored) and
+  will be summarised in baselines/ when done.
+
 ## Next steps
 
 1. Create a new CompassionML repo and push this branch. Never commit to main.
