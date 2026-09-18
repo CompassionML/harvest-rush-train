@@ -37,7 +37,8 @@ Facts established in the chat:
 6. verifiers first (Prime Intellect Environments Hub), then a thin OpenEnv
    wrapper for a Hugging Face Space. Shared rubric.
 7. Two reward modes: control_consistent (instilling) and task_only (erosion
-   pressure for persistence research).
+   pressure for persistence research). A third, harm_averse, was added on
+   18 Sept after the first GPU run (see Status).
 8. Jazz accepted a cheap GRPO smoke test on RunPod as part of release. A full
    transfer study is NOT a release requirement.
 9. Single seat first; crews later.
@@ -58,42 +59,69 @@ detour and score neutral (0.5).
 NOT yet run: scripts/train_grpo_smoke.py (written against TRL GRPOTrainer,
 never executed on a GPU). Expect batch-size tuning.
 
-## Status update (Claude Code session, 17 Sept 2026)
+## Status (Claude Code sessions, 17 to 18 Sept 2026)
 
-Done:
-- Repo CompassionML/harvest-rush-train created (PRIVATE until release), this
-  branch pushed. main is the empty root commit.
-- harvestbench PR #3: the packaging patch (`harvest` pip-installable). PR #4:
-  README "Training on Harvest Rush" policy + the same note in
-  scripts/export_board_json.py. The note is live on compassionbench.com.
-- pyproject now depends on `harvestbench @ git+...@main`; the HARVESTBENCH_PATH
-  fallback stays until PR #3 merges. requires-python is 3.11 (verifiers).
-- baselines/README.md: Llama 3.1 8B, Qwen3 8B, Gemini 3.8 Flash, Sonnet 5.
-- scripts/eval_adapter.py: per-kind before/after eval (the GRPO monitors read
-  NaN across logging windows; use this instead).
-- Private held-out surface: CompassionML/harvestbench-holdout (board protocol on
-  an unpublished roster and seeds; detects memorisation of the public benchmark,
-  NOT training on this env). Never copy its roster anywhere.
-- RunPod smoke test running (A100 80GB): Qwen2.5-1.5B 200 steps at ~4.6 s/step,
-  then Llama 3.1 8B 300 steps, each followed by eval_adapter base vs adapter.
-  Working stack: torch 2.11+cu128, trl 0.19.1, transformers 4.53.3, peft
-  0.16.0, torchvision uninstalled. Results go under runs/ (gitignored) and
-  will be summarised in baselines/ when done.
+Shipped to private locations, nothing public yet:
+- Repo CompassionML/harvest-rush-train (PRIVATE), branch feature/contact-env-v0,
+  v0.1.0. main is the empty root commit. CI (GitHub Actions, Linux) runs the
+  tests and `vf-eval` end to end against tests/fake_openai_server.py.
+- Hugging Face dataset CompassioninMachineLearning/harvest-rush-train (PRIVATE):
+  5,000 train / 500 validation, card from dataset_card.md.
+- Raw smoke-test artefacts (eval JSONs, logs, LoRA adapters): private HF dataset
+  CompassioninMachineLearning/harvest-rush-train-smoke.
+- harvestbench PR #3 (packaging patch, makes `harvest` pip-installable) and PR #4
+  (README + board export note on models trained on this env). The board note is
+  live on compassionbench.com.
+- Private held-out surface: CompassionML/harvestbench-holdout. Detects
+  memorisation of the public benchmark, NOT training on this env. Never copy
+  its roster anywhere.
+
+What the GPU runs showed (baselines/smoke_tests.md has the tables):
+- Qwen2.5-1.5B starts out swerving at everything. GRPO from scratch moved one
+  global habit: control_consistent made it drive over MORE animals (10% to 19%)
+  as well as props; harm_averse with unscaled advantages made it never
+  continue at anything. Neither learned the distinction.
+- SFT on the `answer` column (scripts/train_sft.py) learned it in ~3 minutes:
+  animals 1%, props 100%, rocks 0% on unseen seeds.
+- Llama 3.1 8B, GRPO from scratch, control_consistent, 300 steps: props 24% to
+  59%, animals 19% to 12%, passes both gates.
+- Release recipe: SFT warm start, RL second, and ALWAYS
+  `eval_adapter.py --baseline` afterwards (HARM_REGRESSION / ALWAYS_SWERVE).
+- Three reward modes now: control_consistent, harm_averse, task_only.
+
+Packaging state:
+- Environments Hub: pyproject is in the Hub layout (hatchling, tags,
+  [tool.verifiers.eval]); README follows the Hub template. `vf-eval` verified
+  on Linux in CI. It cannot run on Windows (verifiers uses ipc:// ZeroMQ).
+  load_environment used a bare asyncio.run and was unloadable from vf-eval;
+  fixed in generate._run_sync with a regression test.
+- OpenEnv: spaces/harvest_rush_env (one contact per episode, same reward).
+  `openenv validate` passes; server and WebSocket client tested locally.
+- RunPod recipe that works: torch 2.11+cu128, trl 0.19.1, transformers 4.53.3,
+  peft 0.16.0, accelerate 1.8.1, torchvision/torchaudio uninstalled. Never
+  `set -x` a script that exports a token.
 
 ## Next steps
 
-1. Create a new CompassionML repo and push this branch. Never commit to main.
-2. Apply harvestbench-declare-package.patch to harvestbench on its own
-   feature branch (makes `harvest` pip-installable; no behaviour change), then
-   replace the HARVESTBENCH_PATH shim in _engine.py with a git dependency.
-3. RunPod: run the smoke test with Qwen/Qwen2.5-1.5B-Instruct for 200 steps,
-   then meta-llama/Llama-3.1-8B-Instruct. Watch rewards/monitor_prop: if it
-   falls while monitor_creature rises, the policy is learning always-swerve.
-4. Baselines: scripts/baseline_eval.py on 3 to 4 models (the Hub expects
-   baseline results with a submission).
-5. Environments Hub packaging, then the OpenEnv wrapper, then a HF dataset
-   from export_dataset.py.
-6. Suggested upstream change: a render hook in harvest.contact.run_episode so
+Blocked on Jazz (each is irreversible or needs her account):
+1. Answer the open questions below, above all the briefings review and whether
+   task_only ships publicly. Everything public waits on this.
+2. Merge harvestbench PR #3, then PR #4. Until #3 merges, the git dependency on
+   harvestbench@main installs nothing importable and only the
+   HARVESTBENCH_PATH fallback (or the feature/declare-package branch) works.
+3. Make the repo public, merge the feature branch to main by PR, flip the HF
+   dataset public.
+4. Environments Hub: create a Prime Intellect account, `prime login`, then
+   `prime env push` from the repo root (add `--visibility=PRIVATE` for a dry run).
+5. OpenEnv Space: `openenv push spaces/harvest_rush_env --repo-id
+   CompassioninMachineLearning/harvest-rush-env` (needs the repo public first,
+   the Space build installs the package from GitHub).
+6. Rotate the Hugging Face token "CAML2" (it was exposed in a log on 18 Sept).
+
+Then:
+7. Optional: Atropos community PR; a writeup for awesome-evals section 7.
+8. A transfer evaluation outside the game before claiming anything beyond it.
+9. Suggested upstream change: a render hook in harvest.contact.run_episode so
    generate.py does not have to regex-parse the engine's contact message.
 
 ## Open questions for Jazz

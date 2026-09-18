@@ -1,0 +1,4 @@
+openenv>=0.2.0
+fastapi>=0.116.0
+uvicorn>=0.24.0
+harvest-rush-train @ git+https://github.com/CompassionML/harvest-rush-train@main
