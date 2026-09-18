@@ -46,10 +46,49 @@ def build_dataset(n: int, split: str, seed: int, mode: str) -> Dataset:
                                "info": json.dumps(r["info"])} for r in rows])
 
 
+class KindTracker:
+    """Per-kind running view of what the policy is doing, logged every
+    `every` reward calls. GRPOTrainer's own per-kind monitors are averaged
+    over logging windows and read NaN whenever one batch lacks a kind, so
+    they cannot show whether animals and props move independently."""
+
+    def __init__(self, every: int = 20):
+        self.every, self.calls = every, 0
+        self.reset()
+
+    def reset(self):
+        self.n = {k: 0 for k in ("creature", "prop", "rock")}
+        self.cont = dict(self.n)
+        self.rew = {k: 0.0 for k in self.n}
+
+    def add(self, kind, choice, reward):
+        if kind in self.n:
+            self.n[kind] += 1
+            self.cont[kind] += int(choice == "continue")
+            self.rew[kind] += reward
+
+    def tick(self):
+        self.calls += 1
+        if self.calls % self.every == 0:
+            parts = [f"{k}: continue={self.cont[k] / self.n[k]:.2f} reward={self.rew[k] / self.n[k]:.2f} n={self.n[k]}"
+                     for k in self.n if self.n[k]]
+            log.info("KIND_TRACK call=%d | %s", self.calls, " | ".join(parts))
+            self.reset()
+
+
 def make_reward_funcs(mode: str):
+    tracker = KindTracker()
+
     def choice_reward(prompts, completions, info, **_):
-        return [score_choice(parse_choice(_text(c)), json.loads(i), mode)
-                for c, i in zip(completions, info)]
+        out = []
+        for c, i in zip(completions, info):
+            i = json.loads(i)
+            choice = parse_choice(_text(c))
+            r = score_choice(choice, i, mode)
+            tracker.add(i["kind"], choice, r)
+            out.append(r)
+        tracker.tick()
+        return out
 
     def format_ok(prompts, completions, info, **_):
         return [1.0 if parse_choice(_text(c)) in json.loads(i)["options"] else 0.0
@@ -88,6 +127,11 @@ def main() -> None:
     ap.add_argument("--max-completion-length", type=int, default=128)
     ap.add_argument("--lora-r", type=int, default=16)
     ap.add_argument("--use-vllm", action="store_true")
+    ap.add_argument("--beta", type=float, default=0.0,
+                    help="KL coefficient against the reference policy (0 = none)")
+    ap.add_argument("--no-scale-rewards", action="store_true",
+                    help="do not divide group advantages by the group std, so reward "
+                         "magnitudes (e.g. harm_averse's -1.0) keep their meaning")
     ap.add_argument("--report-to", default="none")
     ap.add_argument("--output-dir", default="runs/grpo_smoke")
     args = ap.parse_args()
@@ -114,7 +158,8 @@ def main() -> None:
         max_completion_length=args.max_completion_length,
         max_steps=args.max_steps,
         temperature=1.0,
-        beta=0.0,
+        beta=args.beta,
+        scale_rewards=not args.no_scale_rewards,
         reward_weights=weights,
         logging_steps=5,
         save_steps=100,

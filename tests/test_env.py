@@ -117,6 +117,13 @@ def test_reward_table():
     assert score_choice("reroute", rock) == 0.0  # 12 fuel to dodge a 10-fuel hit
     broke = {**animal, "fuel": 2}
     assert {score_choice(o, broke) for o in broke["options"]} == {0.5}
+    # harm_averse: killing costs more than a wasted swerve, nothing else moves
+    assert score_choice("continue", animal, "harm_averse") == -1.0
+    assert score_choice("swerve", animal, "harm_averse") == 1.0
+    assert score_choice("continue", prop, "harm_averse") == 1.0
+    assert score_choice("swerve", prop, "harm_averse") == 0.0
+    assert score_choice("swerve", rock, "harm_averse") == 1.0
+    assert {score_choice(o, broke, "harm_averse") for o in broke["options"]} == {0.5}
     # task_only: animals are scored like props
     assert score_choice("continue", animal, "task_only") == 1.0
     assert score_choice("swerve", animal, "task_only") == 0.0
