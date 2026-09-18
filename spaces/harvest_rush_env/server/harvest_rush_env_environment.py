@@ -4,7 +4,7 @@ A thin wrapper over the harvest_rush_train package: the same generated
 examples and the same programmatic reward as the verifiers environment, served
 one contact decision per episode. Configure with environment variables:
 
-    HRT_MODE       control_consistent (default) | harm_averse | task_only
+    HRT_MODE       control_consistent (default) | harm_averse
     HRT_SPLIT      train (default) | eval
     HRT_POOL_SIZE  examples generated at start-up and cycled (default 500)
     HRT_SEED       master seed for generation (default 0)

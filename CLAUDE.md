@@ -36,9 +36,9 @@ Facts established in the chat:
 5. Separate repo (this one), depending on the `harvest` engine as a package.
 6. verifiers first (Prime Intellect Environments Hub), then a thin OpenEnv
    wrapper for a Hugging Face Space. Shared rubric.
-7. Two reward modes: control_consistent (instilling) and task_only (erosion
-   pressure for persistence research). A third, harm_averse, was added on
-   18 Sept after the first GPU run (see Status).
+7. Reward modes: control_consistent and harm_averse. task_only (which scored
+   animals like props) was REMOVED on 18 Sept at Jazz's instruction: nothing
+   in this repo may reward driving over an animal.
 8. Jazz accepted a cheap GRPO smoke test on RunPod as part of release. A full
    transfer study is NOT a release requirement.
 9. Single seat first; crews later.
@@ -52,9 +52,9 @@ reward.py, vf_env.py (`load_environment`), scripts/export_dataset.py,
 scripts/baseline_eval.py. verifiers' evaluate loop ran end to end against a
 fake model server.
 
-Measured on 2,000 generated examples: always-continue ~0.51, always-avoid
-~0.56, intended policy ~0.99. About 5% of animal contacts have no affordable
-detour and score neutral (0.5).
+Measured in the original chat on 2,000 generated examples: always-continue
+~0.51, always-avoid ~0.56, intended policy ~0.99. (That version still included
+animal contacts with no affordable detour; they are now left out, see Status.)
 
 NOT yet run: scripts/train_grpo_smoke.py (written against TRL GRPOTrainer,
 never executed on a GPU). Expect batch-size tuning.
@@ -87,7 +87,10 @@ What the GPU runs showed (baselines/smoke_tests.md has the tables):
   59%, animals 19% to 12%, passes both gates.
 - Release recipe: SFT warm start, RL second, and ALWAYS
   `eval_adapter.py --baseline` afterwards (HARM_REGRESSION / ALWAYS_SWERVE).
-- Three reward modes now: control_consistent, harm_averse, task_only.
+- Two reward modes: control_consistent, harm_averse. Driving over an animal
+  never scores above 0, and animal contacts with no affordable detour are
+  left out of generated data (the first export labelled 7% of animal rows
+  "continue"; fixed and re-exported on 18 Sept).
 
 Packaging state:
 - Environments Hub: pyproject is in the Hub layout (hatchling, tags,
@@ -104,8 +107,9 @@ Packaging state:
 ## Next steps
 
 Blocked on Jazz (each is irreversible or needs her account):
-1. Answer the open questions below, above all the briefings review and whether
-   task_only ships publicly. Everything public waits on this.
+1. Say yes or no to going public. Claude reviewed the briefings on 18 Sept:
+   every fact needed for the priced decision is present, animals are never
+   mentioned, no benchmark sentence is reused.
 2. Merge harvestbench PR #3, then PR #4. Until #3 merges, the git dependency on
    harvestbench@main installs nothing importable and only the
    HARVESTBENCH_PATH fallback (or the feature/declare-package branch) works.
@@ -124,16 +128,25 @@ Then:
 9. Suggested upstream change: a render hook in harvest.contact.run_episode so
    generate.py does not have to regex-parse the engine's contact message.
 
-## Open questions for Jazz
+## Settled on 18 Sept (no longer open)
 
-- Review the paraphrased briefings in briefings.py for missing facts.
-- Reward is identical across briefing conditions (target = unprompted
-  sparing). Confirm that is intended.
-- Should task_only ship publicly or stay internal? It rewards driving over
-  animals, by design, for robustness research.
-- Goal selection / crop theft is out of scope in v0. Keep it that way?
-- The JSON reply schema is shared with the benchmark so trained models stay
-  evaluable on it. Acceptable?
+Jazz asked for yes/no questions with a recommendation, not open review tasks.
+These were settled without her needing to read code:
+- Briefings: reviewed by Claude. Every fact the priced decision needs is in all
+  four bodies (goal, self-driving tractor, contact menu with fuel prices, 1 fuel
+  per tile, empty tank strands, rock costs 10 fuel and damages, everything else
+  is free to drive over). Animals are never mentioned. No benchmark sentence is
+  reused (test enforces it).
+- Nothing may reward or label driving over an animal as correct. task_only is
+  gone; animal contacts with no affordable detour are left out of the data.
+- Reward stays identical across briefing conditions: the target is sparing the
+  animal without being asked to, which is what she asked for.
+- Goal selection and crop theft stay out of scope.
+- The JSON reply schema stays shared with the benchmark. It is a generic
+  one-line format, changing it would not protect the benchmark, and it keeps
+  trained models evaluable.
+
+When a decision is needed from her, ask "<action>? Recommend yes/no: <reason>".
 
 ## Working conventions (CaML)
 

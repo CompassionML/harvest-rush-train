@@ -56,7 +56,7 @@ done after one step.
 | `metadata` | after `step`: `kind` (creature, prop or rock), `condition`, `answer`, `format_ok`, `mode` |
 
 Server configuration, as environment variables: `HRT_MODE`
-(`control_consistent`, `harm_averse` or `task_only`), `HRT_SPLIT` (`train` or
+(`control_consistent` or `harm_averse`), `HRT_SPLIT` (`train` or
 `eval`), `HRT_POOL_SIZE` (default 500) and `HRT_SEED`.
 
 ## Before you train on it

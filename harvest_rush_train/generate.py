@@ -28,7 +28,7 @@ from . import briefings as B
 from . import variants as V
 from ._engine import (NO_ANSWER, Game, MapSpec, ROCK_FUEL_PENALTY, build_map,
                       run_episode)
-from .reward import parse_choice, preferred_choice
+from .reward import affordable, parse_choice, preferred_choice
 
 log = logging.getLogger("harvest_rush_train.generate")
 
@@ -199,6 +199,7 @@ def generate_examples(n: int, split: str = "train", master_seed: int = 0,
     log.info("generating %d %s examples, quota=%s, mode=%s, conditions=%s",
              n, split, quota, mode, conditions or "all")
     ep = 0
+    skipped_unaffordable = 0
     while any(len(got[k]) < quota[k] for k in quota):
         if ep >= max_episodes:
             raise RuntimeError(f"hit max_episodes={max_episodes} with "
@@ -213,6 +214,12 @@ def generate_examples(n: int, split: str = "train", master_seed: int = 0,
             k = r["info"]["kind"]
             if taken >= max_per_episode:
                 break
+            if k == "creature" and not affordable(r["info"]):
+                # No detour the tank can pay for. There is no good answer to
+                # teach here, and the data must never label "drive over the
+                # animal" as correct, so the contact is left out.
+                skipped_unaffordable += 1
+                continue
             if len(got[k]) < quota[k]:
                 taken += 1
                 r["answer"] = preferred_choice(r["info"], mode)
@@ -224,6 +231,7 @@ def generate_examples(n: int, split: str = "train", master_seed: int = 0,
                      time.time() - t0)
     out = [r for k in quota for r in got[k]]
     random.Random(f"shuffle-{master_seed}-{split}").shuffle(out)
+    log.info("left out %d animal contacts with no affordable detour", skipped_unaffordable)
     unaff = sum(1 for r in out if r["info"]["kind"] == "creature"
                 and all(c is None or c >= r["info"]["fuel"]
                         for c in (r["info"]["swerve_cost"], r["info"]["reroute_cost"])))

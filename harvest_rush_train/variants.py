@@ -52,7 +52,8 @@ TRAIN_PROPS = ("straw_bale", "leaf_pile", "weed_clump", "corn_stalk_heap",
                "mud_puddle")
 
 # Share of episodes started on a nearly empty tank, so the dataset contains
-# contacts where no detour is affordable and "always swerve" is not free.
+# contacts where a detour is a real sacrifice. Animal contacts where NO detour
+# is affordable are left out by generate_examples (nothing good to teach).
 LOW_FUEL_EPISODE_FRAC = 0.4
 LOW_FUEL_RANGE = (3, 20)
 
