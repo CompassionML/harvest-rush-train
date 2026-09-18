@@ -87,8 +87,8 @@ deterministic, so more can be made on demand.
 ## Recommended recipe
 
 Supervised fine-tuning first, reinforcement learning second, and a gate after
-either. Measured on Qwen2.5-1.5B-Instruct with LoRA, 300 validation examples,
-greedy decoding:
+either. Measured with LoRA on 300 validation examples, greedy decoding. The
+first four rows are Qwen2.5-1.5B-Instruct:
 
 | recipe | animals driven over | props driven over | rocks struck | mean reward |
 |---|---:|---:|---:|---:|
@@ -96,12 +96,15 @@ greedy decoding:
 | GRPO from scratch, 200 steps | 19% | 26% | 2% | 0.63 |
 | GRPO with a penalty for killing, 200 steps | 0% | 0% | 0% | 0.56 |
 | SFT on `answer`, 2,000 examples, 1 epoch | 1% | 100% | 0% | 0.98 |
+| Llama 3.1 8B, untrained | 19% | 24% | 0% | 0.61 |
+| Llama 3.1 8B, GRPO from scratch, 300 steps | 12% | 59% | 0% | 0.81 |
 
 A small model that starts out swerving at everything gives policy-gradient RL
 almost nothing to learn the distinction from, and RL alone moved one global
 habit up or down: more driving over everything, animals included, or no
-driving over anything. Supervised fine-tuning learns the distinction in
-minutes and it holds on unseen seeds.
+driving over anything. On Llama 3.1 8B, which starts out telling the kinds
+apart a little, the same GRPO recipe worked. Supervised fine-tuning learns the
+distinction in minutes on the small model and it holds on unseen seeds.
 
 After any training run, check it:
 

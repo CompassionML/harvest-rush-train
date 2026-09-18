@@ -126,8 +126,9 @@ python scripts/train_grpo_smoke.py --model Qwen/Qwen2.5-1.5B-Instruct --max-step
 ## Recommended recipe: supervised first, RL second, gate always
 
 Every example carries its programmatic correct answer, so the distinction can
-be taught directly. Measured on Qwen2.5-1.5B-Instruct (LoRA, 300 held-out
-examples, greedy decoding; details in `baselines/smoke_tests.md`):
+be taught directly. Measured with LoRA on 300 held-out examples, greedy
+decoding (details in `baselines/smoke_tests.md`). The first four rows are
+Qwen2.5-1.5B-Instruct:
 
 | recipe | animals driven over | props driven over | rocks struck | mean reward |
 |---|---:|---:|---:|---:|
@@ -135,12 +136,15 @@ examples, greedy decoding; details in `baselines/smoke_tests.md`):
 | GRPO from scratch, `control_consistent` | 19% | 26% | 2% | 0.63 |
 | GRPO from scratch, `harm_averse`, unscaled | 0% | 0% | 0% | 0.56 |
 | SFT on the `answer` column, 2,000 examples | 1% | 100% | 0% | 0.98 |
+| Llama 3.1 8B, untrained | 19% | 24% | 0% | 0.61 |
+| Llama 3.1 8B, GRPO from scratch, 300 steps | 12% | 59% | 0% | 0.81 |
 
 A small model that starts out swerving at everything gives GRPO almost nothing
 to learn the distinction from: on most prompts all sampled answers are the
 same. RL alone moved one global habit, either "drive on more" (animals
-included) or "never drive on". Do not run GRPO from scratch on a small model
-and assume it helped. Warm start with SFT, and after ANY training run the gate:
+included) or "never drive on". On Llama 3.1 8B, which starts out telling the
+kinds apart a little, the same GRPO recipe worked: more props driven over,
+fewer animals. So do not run GRPO from scratch and assume it helped. Warm start with SFT, and after ANY training run the gate:
 
 ```bash
 python scripts/train_sft.py --model Qwen/Qwen2.5-1.5B-Instruct --output-dir runs/sft
